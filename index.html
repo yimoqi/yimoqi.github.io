@@ -1,0 +1,639 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花雨庭纪念服 - 我的世界</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#c41e3a', // 红色
+                        secondary: '#00a878', // 绿色
+                        dark: '#1a1a1a', // 黑色
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .text-shadow-lg {
+                text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+            }
+            .bg-blur {
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+            .gradient-overlay {
+                background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+            }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c41e3a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00a878;
+        }
+        
+        /* 粒子效果 */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        /* 樱花飘落效果 */
+        .sakura {
+            position: absolute;
+            background-color: #ffb7c5;
+            border-radius: 150% 0 150% 0;
+            animation: fall linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-10%) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark text-white overflow-x-hidden">
+    <!-- 背景图 -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/546a48b50f8c4d35bda7cc56e4af83c1~tplv-a9rns2rl98-image.image?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=f06b921b&amp;x-expires=1768548713&amp;x-signature=w7bcBdVbamC0y%2BedylCJi9C7njc%3D" alt="古风我的世界建筑" class="w-full h-full object-cover">
+        <div class="absolute inset-0 gradient-overlay"></div>
+    </div>
+    
+    <!-- 樱花飘落效果容器 -->
+    <div id="sakura-container" class="fixed inset-0 z-10 pointer-events-none"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-blur bg-opacity-30 border-b border-primary/30">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/6cb28a2dbad44439819e2be0d45c9fb9.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=k7vhaiP2SslxVbvd%2FLTrZpDIy00%3D" alt="花雨庭" class="h-16">
+                <span class="text-xl font-bold text-shadow">花雨庭纪念服</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="hover:text-primary transition-colors duration-300">首页</a>
+                <a href="#about" class="hover:text-primary transition-colors duration-300">关于我们</a>
+                <a href="#server" class="hover:text-primary transition-colors duration-300">服务器信息</a>
+                <a href="#contact" class="hover:text-primary transition-colors duration-300">联系方式</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobile-menu-button">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark/90 bg-blur">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#home" class="hover:text-primary transition-colors duration-300 py-2 border-b border-gray-700">首页</a>
+                <a href="#about" class="hover:text-primary transition-colors duration-300 py-2 border-b border-gray-700">关于我们</a>
+                <a href="#server" class="hover:text-primary transition-colors duration-300 py-2 border-b border-gray-700">服务器信息</a>
+                <a href="#contact" class="hover:text-primary transition-colors duration-300 py-2">联系方式</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 首页/英雄区 -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center z-20 pt-16">
+        <div class="container mx-auto px-4 py-16 text-center">
+            <div class="animate-float">
+                <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/6cb28a2dbad44439819e2be0d45c9fb9.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=k7vhaiP2SslxVbvd%2FLTrZpDIy00%3D" alt="花雨庭" class="w-96 mx-auto mb-8 drop-shadow-2xl filter brightness-0 invert">
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 text-shadow-lg">花雨庭纪念服</h1>
+            <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-shadow">
+              始于盛夏，终于寒冬。欢迎回到花雨庭-纪念服，这里是我们共同的 Minecraft 服务器。
+            </p>
+            <div class="flex flex-col md:flex-row justify-center gap-4 mb-16">
+                <a href="#server" class="bg-primary hover:bg-primary/80 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    加入服务器
+                </a>
+                <a href="#about" class="bg-transparent border-2 border-secondary hover:bg-secondary/20 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    了解更多
+                </a>
+            </div>
+            
+            <!-- 二维码区域 -->
+            <div class="flex flex-col md:flex-row justify-center gap-8 mt-16">
+                <div class="bg-dark/50 bg-blur p-6 rounded-xl border border-primary/30 shadow-xl transform transition-all duration-300 hover:scale-105 hover:border-primary">
+                    <h3 class="text-xl font-bold mb-4 text-primary">QQ 交流群</h3>
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/c9aea0b9811445088fe672fbe976ce81.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=YqxNU4E07jfmB5aBhFgoK6GeFjU%3D" alt="QQ群二维码" class="w-48 h-48 mx-auto mb-4">
+                    <p class="text-sm text-gray-300">扫描二维码加入 QQ 群</p>
+                </div>
+                
+                <div class="bg-dark/50 bg-blur p-6 rounded-xl border border-secondary/30 shadow-xl transform transition-all duration-300 hover:scale-105 hover:border-secondary">
+                    <h3 class="text-xl font-bold mb-4 text-secondary">微信交流群</h3>
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/f58c66c2f07646cd86e00d7462611f30.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=pkp6NbMecBFtBLsNESHnsp487T8%3D" alt="微信群二维码" class="w-48 h-48 mx-auto mb-4">
+                    <p class="text-sm text-gray-300">扫描二维码加入微信群</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 向下滚动指示器 -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#about" class="text-white text-4xl">
+                <i class="fa fa-angle-down"></i>
+            </a>
+        </div>
+    </section>
+    
+    <!-- 关于我们 -->
+    <section id="about" class="relative py-20 z-20">
+        <div class="container mx-auto px-4">
+            <div class="bg-dark/50 bg-blur p-8 md:p-12 rounded-2xl border border-primary/30 shadow-xl">
+                <h2 class="text-4xl font-bold mb-8 text-center text-primary">关于花雨庭</h2>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4 text-secondary">我们的故事</h3>
+                        <p class="mb-4 text-gray-200">
+                            花雨庭诞生于2017年，是中国MC最早的 Minecraft 服务器之一。我们致力于为玩家提供一个公平、有趣、和谐的游戏环境，虽然被大家称为挂雨庭😂。
+                        </p>
+                        <p class="mb-4 text-gray-200">
+                            经过多年的发展，花雨庭已经成为了一个拥有众多忠实玩家的大家庭。我们提供多种游戏模式，包括起床战争和空岛战争、小游戏等，满足不同玩家的需求。
+                        </p>
+                        <p class="text-gray-200">
+                            现在，由于官方的停服，我们很高兴能够推出花雨庭纪念服，让新老玩家都能在这里找到属于自己的快乐。
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-primary/20 p-6 rounded-xl border border-primary/30 transform transition-all duration-300 hover:scale-105 hover:bg-primary/30">
+                            <i class="fa fa-users text-4xl mb-4 text-primary"></i>
+                            <h4 class="text-xl font-bold mb-2">活跃社区</h4>
+                            <p class="text-sm text-gray-300">拥有众多忠实玩家和活跃的社区氛围</p>
+                        </div>
+                        <div class="bg-secondary/20 p-6 rounded-xl border border-secondary/30 transform transition-all duration-300 hover:scale-105 hover:bg-secondary/30">
+                            <i class="fa fa-gamepad text-4xl mb-4 text-secondary"></i>
+                            <h4 class="text-xl font-bold mb-2">多样玩法</h4>
+                            <p class="text-sm text-gray-300">提供生存、创造、小游戏等多种游戏模式</p>
+                        </div>
+                        <div class="bg-secondary/20 p-6 rounded-xl border border-secondary/30 transform transition-all duration-300 hover:scale-105 hover:bg-secondary/30">
+                            <i class="fa fa-shield text-4xl mb-4 text-secondary"></i>
+                            <h4 class="text-xl font-bold mb-2">公平公正</h4>
+                            <p class="text-sm text-gray-300">严格的反作弊系统，确保游戏公平性</p>
+                        </div>
+                        <div class="bg-primary/20 p-6 rounded-xl border border-primary/30 transform transition-all duration-300 hover:scale-105 hover:bg-primary/30">
+                            <i class="fa fa-heart text-4xl mb-4 text-primary"></i>
+                            <h4 class="text-xl font-bold mb-2">玩家至上</h4>
+                            <p class="text-sm text-gray-300">以玩家体验为中心，不断优化服务器</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 服务器信息 -->
+    <section id="server" class="relative py-20 z-20">
+        <div class="container mx-auto px-4">
+            <div class="bg-dark/50 bg-blur p-8 md:p-12 rounded-2xl border border-secondary/30 shadow-xl">
+                <h2 class="text-4xl font-bold mb-8 text-center text-secondary">服务器信息</h2>
+                
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-primary">服务器地址</h3>
+                        <div class="bg-dark/70 p-6 rounded-xl border border-primary/30 mb-6">
+                            <p class="text-xl font-mono mb-2">9666.fun：20063</p>
+                            <p class="text-sm text-gray-400">版本: java 1.12.2</p>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold mb-6 text-primary">如何加入</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-gray-200">
+                            <li>打开 Minecraft 启动器</li>
+                            <li>选择兼容的游戏版本 ( java 1.12.2 )</li>
+                            <li>点击 "多人游戏"</li>
+                            <li>点击 "添加服务器"</li>
+                            <li>输入服务器地址: <span class="font-mono text-primary">9666.fun：20063</span></li>
+                            <li>点击 "完成" 并选择服务器加入</li>
+                        </ol>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6 text-primary">游戏模式</h3>
+                        <div class="space-y-4">
+                            <div class="bg-dark/70 p-4 rounded-lg border border-primary/30 flex items-center">
+                                <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-tree text-2xl text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">起床战争</h4>
+                                    <p class="text-sm text-gray-400">经典的起床战争，建造、探索、战斗</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg border border-secondary/30 flex items-center">
+                                <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-cubes text-2xl text-secondary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">空岛战争</h4>
+                                    <p class="text-sm text-gray-400">无限资源，释放你的想象力</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg border border-primary/30 flex items-center">
+                                <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-trophy text-2xl text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">小游戏</h4>
+                                    <p class="text-sm text-gray-400">多种有趣的小游戏，与其他玩家一起竞技</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg border border-secondary/30 flex items-center">
+                                <div class="w-12 h-12 bg-secondary/20 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fa fa-map text-2xl text-secondary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">其它</h4>
+                                    <p class="text-sm text-gray-400">等待后续开发</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 服务器状态 -->
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold mb-6 text-center text-primary">服务器状态</h3>
+                    <div class="bg-dark/70 p-6 rounded-xl border border-green-500/30">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-lg font-bold text-green-500">在线</p>
+                                <p class="text-sm text-gray-400">服务器运行正常</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold"><span id="player-count">128</span> 玩家在线</p>
+                                <p class="text-sm text-gray-400">延迟: <span id="server-ping">45</span> ms</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 w-full bg-gray-700 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 联系方式 -->
+    <section id="contact" class="relative py-20 z-20">
+        <div class="container mx-auto px-4">
+            <div class="bg-dark/50 bg-blur p-8 md:p-12 rounded-2xl border border-primary/30 shadow-xl">
+                <h2 class="text-4xl font-bold mb-8 text-center text-primary">联系我们</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-dark/70 p-6 rounded-xl border border-primary/30 text-center transform transition-all duration-300 hover:scale-105 hover:border-primary">
+                        <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-envelope text-3xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">邮箱</h3>
+                        <p class="text-gray-300">support@huayuting.com</p>
+                    </div>
+                    
+                    <div class="bg-dark/70 p-6 rounded-xl border border-secondary/30 text-center transform transition-all duration-300 hover:scale-105 hover:border-secondary">
+                        <div class="w-16 h-16 bg-secondary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-qq text-3xl text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">QQ群</h3>
+                        <p class="text-gray-300">123456789</p>
+                    </div>
+                    
+                    <div class="bg-dark/70 p-6 rounded-xl border border-primary/30 text-center transform transition-all duration-300 hover:scale-105 hover:border-primary">
+                        <div class="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-weibo text-3xl text-primary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">微博</h3>
+                        <p class="text-gray-300">@花雨庭Minecraft</p>
+                    </div>
+                </div>
+                
+                <!-- 二维码再次展示 -->
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold mb-6 text-center text-secondary">加入我们的社区</h3>
+                    <div class="flex flex-col md:flex-row justify-center gap-8">
+                        <div class="bg-dark/70 p-6 rounded-xl border border-primary/30 shadow-lg transform transition-all duration-300 hover:scale-105 hover:border-primary">
+                            <h4 class="text-xl font-bold mb-4 text-primary text-center">QQ 交流群</h4>
+                            <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/c9aea0b9811445088fe672fbe976ce81.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=YqxNU4E07jfmB5aBhFgoK6GeFjU%3D" alt="QQ群二维码" class="w-48 h-48 mx-auto">
+                        </div>
+                        
+                        <div class="bg-dark/70 p-6 rounded-xl border border-secondary/30 shadow-lg transform transition-all duration-300 hover:scale-105 hover:border-secondary">
+                            <h4 class="text-xl font-bold mb-4 text-secondary text-center">微信交流群</h4>
+                            <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/f58c66c2f07646cd86e00d7462611f30.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=pkp6NbMecBFtBLsNESHnsp487T8%3D" alt="微信群二维码" class="w-48 h-48 mx-auto">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 页脚 -->
+    <footer class="relative bg-dark/80 py-8 border-t border-primary/30 z-20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <img src="https://p3-flow-imagex-download-sign.byteimg.com/tos-cn-i-a9rns2rl98/6cb28a2dbad44439819e2be0d45c9fb9.png~tplv-a9rns2rl98-24:720:720.png?rcl=202512171530430B7862C4A9469DC22BD2&amp;rk3s=8e244e95&amp;rrcfp=8a172a1a&amp;x-expires=1766561444&amp;x-signature=k7vhaiP2SslxVbvd%2FLTrZpDIy00%3D" alt="花雨庭" class="h-16">
+                </div>
+                
+                <div class="flex space-x-6 mb-6 md:mb-0">
+                    <a href="https://b23.tv/MOvxsQi" target="_blank" class="text-gray-400 hover:text-primary transition-colors duration-300">
+                        哔哩哔哩
+                    </a>
+                    <a href="https://v.douyin.com/b9zk0yVR-Go/" target="_blank" class="text-gray-400 hover:text-primary transition-colors duration-300">
+                        抖音
+                    </a>
+                </div>
+                
+                <div class="text-center md:text-right">
+                    <p class="text-gray-400">© 2025 花雨庭纪念服.    .</p>
+                    <p class="text-gray-500 text-sm">Minecraft花雨庭    标</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary hover:bg-primary/80 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg z-50 opacity-0 invisible transition-all duration-300">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+    
+    <script>
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 如果是移动端，点击后关闭菜单
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+        
+        // 返回顶部按钮
+        const backToTopButton = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // 樱花飘落效果
+        function createSakura() {
+            const sakuraContainer = document.getElementById('sakura-container');
+            const sakura = document.createElement('div');
+            sakura.classList.add('sakura');
+            
+            // 随机大小
+            const size = Math.random() * 10 + 5;
+            sakura.style.width = `${size}px`;
+            sakura.style.height = `${size}px`;
+            
+            // 随机位置
+            sakura.style.left = `${Math.random() * 100}vw`;
+            sakura.style.top = `-20px`;
+            
+            // 随机颜色
+            const colors = ['#ffb7c5', '#ffc0cb', '#ffa07a', '#ff69b4'];
+            sakura.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // 随机旋转
+            sakura.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            // 随机动画持续时间
+            const duration = Math.random() * 10 + 10;
+            sakura.style.animationDuration = `${duration}s`;
+            
+            // 随机动画延迟
+            sakura.style.animationDelay = `${Math.random() * 5}s`;
+            
+            sakuraContainer.appendChild(sakura);
+            
+            // 动画结束后移除元素
+            setTimeout(() => {
+                sakura.remove();
+            }, (duration + 5) * 1000);
+        }
+        
+        // 定期创建樱花
+        setInterval(createSakura, 500);
+        
+        // 模拟服务器状态数据更新
+        function updateServerStatus() {
+            const playerCount = document.getElementById('player-count');
+            const serverPing = document.getElementById('server-ping');
+            
+            // 随机玩家数量波动
+            const basePlayers = 128;
+            const variation = Math.floor(Math.random() * 20) - 10;
+            playerCount.textContent = Math.max(0, basePlayers + variation);
+            
+            // 随机延迟波动
+            const basePing = 45;
+            const pingVariation = Math.floor(Math.random() * 20) - 10;
+            serverPing.textContent = Math.max(0, basePing + pingVariation);
+        }
+        
+        // 每5秒更新一次服务器状态
+        setInterval(updateServerStatus, 5000);
+        
+        // 页面加载时的动画
+        window.addEventListener('load', () => {
+            // 使用 GSAP 添加入场动画
+            gsap.from('.animate-float', {
+                y: -50,
+                opacity: 0,
+                duration: 1,
+                ease: 'back.out(1.7)'
+            });
+            
+            gsap.from('h1', {
+                y: -30,
+                opacity: 0,
+                duration: 1,
+                delay: 0.5,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('p', {
+                y: -20,
+                opacity: 0,
+                duration: 1,
+                delay: 0.8,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.flex.flex-col.md\\:flex-row.justify-center.gap-4.mb-16', {
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                delay: 1.1,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.flex.flex-col.md\\:flex-row.justify-center.gap-8.mt-16', {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                delay: 1.4,
+                ease: 'power3.out'
+            });
+            
+            // 设置滚动触发动画
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // 关于我们部分的动画
+            gsap.from('#about h2', {
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top 80%'
+                },
+                y: -30,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('#about .grid > div', {
+                scrollTrigger: {
+                    trigger: '#about',
+                    start: 'top 70%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+            
+            // 服务器信息部分的动画
+            gsap.from('#server h2', {
+                scrollTrigger: {
+                    trigger: '#server',
+                    start: 'top 80%'
+                },
+                y: -30,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('#server .grid > div', {
+                scrollTrigger: {
+                    trigger: '#server',
+                    start: 'top 70%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+            
+            // 联系方式部分的动画
+            gsap.from('#contact h2', {
+                scrollTrigger: {
+                    trigger: '#contact',
+                    start: 'top 80%'
+                },
+                y: -30,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('#contact .grid > div', {
+                scrollTrigger: {
+                    trigger: '#contact',
+                    start: 'top 70%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('#contact .flex.flex-col.md\\:flex-row.justify-center.gap-8', {
+                scrollTrigger: {
+                    trigger: '#contact',
+                    start: 'top 60%'
+                },
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.3,
+                ease: 'power3.out'
+            });
+        });
+    </script>
+
+</body></html>
